@@ -100,7 +100,7 @@
             "type": "string",
             "defaultValue": null
         }
-
+        
     },
     "variables": {
         "storageResourceGroup": "[concat('portwin-', parameters('environment'), '-storage')]",
@@ -141,7 +141,20 @@
     },
     "resources": [
         {
-            "type": "Microsoft.Resources/deployments"
+            "apiVersion": "2015-01-01",
+            "name": "storageTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://seamlessno.visualstudio.com"
+                }
+            }
+        },
+        {
+            "apiVersion": "2015-01-01",
+            "name": "parameters",
+            "type": "Microsoft.Resources/links"
         }
         { //Redis cache
             "comments": "RedisCache",
