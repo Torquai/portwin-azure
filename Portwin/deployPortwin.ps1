@@ -2,6 +2,9 @@ $subscriptionId = "66c96f4e-ae9e-4ffe-a06c-0b9dc1daaad4"
 $resourceGroupName = "templatetest"
 $resourceGroupLocation = "North Europe"
 
+$baseParameterUrl = ""
+$baseTemplateUrl = ""
+
 $StorageTemplate = ".\templateStorage.json"
 $StorageParameters = ".\parameters.dev.storage.json"
 
@@ -32,7 +35,13 @@ else{
 }
 
 # Start the deployment
-Write-Host "Starting deployment...";
-New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $InsightsTemplate -TemplateParameterFile $InsightsParameters -DeploymentDebugLogLevel All;
+Write-Host "Deploying application insights...";
+New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $InsightsTemplate -TemplateParameterFile $InsightsParameters -Verbose;
+Write-Host "Finished deployment of application insights"
+
+Write-Host "Deploying storage"
+
+Write-Host "Finished deployment of storage"
+
 #New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $StorageTemplate -TemplateParameterFile $StorageParameters -DeploymentDebugLogLevel All;
 

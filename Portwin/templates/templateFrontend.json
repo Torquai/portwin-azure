@@ -1,0 +1,97 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "defaultValue": null,
+            "type": "string"
+        },
+
+        "servicePlanName": {
+            "type": "string",
+            "defaultValue": null
+        },
+
+        "applicationInsightsKey": {
+            "type": "string",
+            "defaultValue": null
+        }
+    },
+    "variables": {
+        "frontendName": "[concat('portwin-', parameters('environment'), '-frontend')]",
+        "frontendApiUrl": "[concat('https://', variables('frontendName'), '.azurewebsites.net')]",
+        "frontendApiScmUrl": "[concat('https://', variables('frontendName'), '.scm.azurewebsites.net')]"
+    },
+    "resources": [
+        { //Frontend
+            "comments": "Frontend webapp",
+            "type": "Microsoft.Web/sites",
+            "kind": "app",
+            "name": "[variables('frontendName')]",
+            "apiVersion": "2015-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('frontendName')]"
+            },
+            "properties": {
+                "name": "[variables('frontendName')]",
+                "hostNames": [
+                    "[variables('frontendApiUrl')]"
+                ],
+                "enabledHostNames": [
+                    "[variables('frontendApiUrl')]",
+                    "[variables('frontendApiScmUrl')]"
+                ],
+                "hostNameSslStates": [
+                    {
+                        "name": "[variables('frontendApiUrl')]",
+                        "sslState": 0,
+                        "thumbprint": null,
+                        "ipBasedSslState": 0
+                    },
+                    {
+                        "name": "[variables('frontendApiScmUrl')]",
+                        "sslState": 0,
+                        "thumbprint": null,
+                        "ipBasedSslState": 0
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('servicePlanName'))]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('servicePlanName'))]"
+            ],
+            "resources": [
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "location": "[resourceGroup().location]",
+                    "tags": 
+                    { 
+                        "displayname": "appsettings",
+                        "environment": "[parameters('environment')]"
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', variables('frontendName'))]"
+                    ],
+                    "properties": {
+                        "ai:Key": "[parameters('applicationInsightsKey')]"
+                    }
+                },
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "slotconfignames",
+                    "type": "config",
+                    "location": "[resourceGroup().location]",
+                    "dependson": [
+                        "[concat('Microsoft.Web/sites/', variables('frontendName'))]"
+                    ],
+                    "properties": {
+                        "appSettingNames": [ "ai:key" ]
+                    }   
+                }              
+            ]
+        }
+    ]
+}

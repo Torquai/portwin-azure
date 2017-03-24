@@ -37,132 +37,26 @@
             "type": "string",
             "allowedValues": [ "1", "2", "3" ],
             "defaultValue": "1"
-        },
-        
-        "tokenSigningKey": {
-            "type": "string",
-            "defaultValue": "OKzurdhva7nLU2gIp+oxzhxG7ltnMFzIavOwWSE+Fn8QH90Uve3QAixio2n+5a/p0XI0YXaaGZLcHh3rZANUqah3wNrW8V0s9CR7/qrxuTpy5/TyKCPH4JbB74ANINKSdl/9+fXwahF32gwN/gaVAyFJOenaICV1gJyQQnK0TV50Xs/23pwFLjJzHSMMMq1IlBSZKdxWC6eXsImJPpbyG9bRtF/E0c8duVSTpViTfbKglckh0TrIekwPZtmUMmbhFpchMbk6ZQdhMWXIzLKVsSyMhM3KOvXfC601va0ziDrtOCSQI7BvK+rv3pfsNI8pZJMNdDBTHJefPteazxR1YQ=="
-        },
-
-        "sqlServerName": {
-            "type": "string",
-            "defaultValue": null
-        },
-        "sqlAdminLoginName": {
-            "type": "string",
-            "defaultValue": null
-        },
-        "sqlAdminPassword": {
-            "type": "securestring",
-            "defaultValue": null
-        },
-        
-        "storageName": {
-            "type": "string",
-            "defaultValue": null
-        },
-
-        "searchElasticHost": {
-            "type": "string",
-            "defaultValue": null
-        },
-        "searchIndexPrefix": {
-            "type": "string",
-            "defaultValue": null
-        },
-        "searchUsername": {
-            "type": "string",
-            "defaultValue": null
-        },
-        "searchPassword": {
-            "type": "securestring",
-            "defaultValue": null
-        },        
-        "searchName": {
-            "type": "string",
-            "defaultValue": null
-        },
-        "searchKey": {
-            "type": "string",
-            "defaultValue": null
-        },
-
-        "applicationInsightsKey": {
-            "type": "string",
-            "defaultValue": null
-        },
-
-        "idaTenant": {
-            "type": "string",
-            "defaultValue": null
-        },
-        "idaAudience": {
-            "type": "string",
-            "defaultValue": null
-        }
-        
+        }   
     },
     "variables": {
-        "storageResourceGroup": "[concat('portwin-', parameters('environment'), '-storage')]",
-        "servicePlanResourceGroup": "[concat('portwin-', parameters('environment'), '-asp')]",
-        "auxResourceGroup": "[concat('portwin-', parameters('environment'), '-aux')]",
-        "insightsResourceGroup": "[concat('portwin-', parameters('environment'), '-insights')]",
-
         "redisCacheName": "[concat('portwin-', parameters('environment'), '-redis')]",
-        "redisCacheUrl": "[concat(variables('redisCacheName'), '.redis.cache.windows.net:6380')]",
 
         "serviceBusName": "[concat('portwin-', parameters('environment'), '-servicebus')]",
-        "serviceBusEndpoint": "[concat('EndPoint=sb://', variables('serviceBusName'), '.servicebus.windows.net')]",
         "serviceBusRuleName": "[concat(variables('serviceBusName'), '/', 'RootManageSharedAccessKey')]",
 
-        "sqlServerName": "[concat('portwin-', parameters('environment'), '-', parameters('sqlServerName'))]",
-
-        "appServiceplanName": "[concat('portwin-', parameters('environment'), '-asp')]",
-
-        "frontendName": "[concat('portwin-', parameters('environment'), '-frontend')]",
-        "frontendApiUrl": "[concat('https://', variables('frontendName'), '.azurewebsites.net')]",
-        "frontendApiScmUrl": "[concat('https://', variables('frontendName'), '.scm.azurewebsites.net')]",
-
-        "settingsApiName": "[concat('portwin-', parameters('environment'), '-settings')]",
-        "settingsApiUrl": "[concat('https://', variables('settingsApiName'), '.azurewebsites.net')]",
-        "settingsApiScmUrl": "[concat('https://', variables('settingsApiName'), '.scm.azurewebsites.net')]",
-
-        "gatewayApiName": "[concat('portwin-', parameters('environment'), '-gateway')]",
-        "gatewayApiUrl": "[concat('https://', variables('gatewayApiName'), '.azurewebsites.net')]",
-        "gatewayApiScmUrl": "[concat('https://', variables('gatewayApiName'), '.scm.azurewebsites.net')]",
-
-        "backofficeApiName": "[concat('portwin-', parameters('environment'), '-backoffice')]",
-        "backofficeApiUrl": "[concat('https://', variables('backofficeApiName'), '.azurewebsites.net')]",
-        "backofficeApiScmUrl": "[concat('https://', variables('backofficeApiName'), '.scm.azurewebsites.net')]",
-
-        "backofficeClientApiName": "[concat('portwin-', parameters('environment'), '-backoffice-client')]",
-        "backofficeClientApiUrl": "[concat('https://', variables('backofficeApiName'), '.azurewebsites.net')]",
-        "backofficeClientApiScmUrl": "[concat('https://', variables('backofficeApiName'), '.scm.azurewebsites.net')]"
+        "appServiceplanName": "[concat('portwin-', parameters('environment'), '-asp')]"
     },
     "resources": [
-        {
-            "apiVersion": "2015-01-01",
-            "name": "storageTemplate",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://seamlessno.visualstudio.com"
-                }
-            }
-        },
-        {
-            "apiVersion": "2015-01-01",
-            "name": "parameters",
-            "type": "Microsoft.Resources/links"
-        }
         { //Redis cache
             "comments": "RedisCache",
             "type": "Microsoft.Cache/Redis",
             "name": "[variables('redisCacheName')]",
             "apiVersion": "2016-04-01",
             "location": "[resourceGroup().location]",
-            "tags": {},
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
             "properties": {
                 "sku": {
                     "name": "[parameters('redisSku')]",
@@ -191,7 +85,8 @@
             "apiVersion": "2015-08-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "[variables('serviceBusName')]"
+                "displayName": "[variables('serviceBusName')]",
+                "environment": "[parameters('environment')]"
             },
             "properties": {
                 "provisioningState": "Succeeded",
@@ -234,363 +129,18 @@
             "apiVersion": "2015-08-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "[variables('appServiceplanName')]"
+                "displayName": "[variables('appServiceplanName')]",
+                "environment": "[parameters('environment')]"
             },
             "properties": {
                 "name": "[variables('appServiceplanName')]",
                 "numberOfWorkers": 1
             },
             "dependsOn": []
-        },
-        { //SettingsApi
-            "comments": "SettingsApi",
-            "type": "Microsoft.Web/sites",
-            "kind": "api",
-            "name": "[variables('settingsApiName')]",
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "displayName": "[variables('settingsApiName')]"
-            },
-            "properties": {
-                "name": "[variables('settingsApiName')]",
-                "hostNames": [
-                    "[variables('settingsApiUrl')]"
-                ],
-                "enabledHostNames": [
-                    "[variables('settingsApiUrl')]",
-                    "[variables('settingsApiScmUrl')]"
-                ],
-                "hostNameSslStates": [
-                    {
-                        "name": "[variables('settingsApiUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    },
-                    {
-                        "name": "[variables('settingsApiScmUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            },
-            "resources": [
-                {
-                    "apiVersion": "2015-08-01",
-                    "name": "appsettings",
-                    "type": "config",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Web/sites/', variables('settingsApiName'))]",
-                        "[concat('Microsoft.Cache/Redis/', variables('redisCacheName'))]",
-                        "[concat('Microsoft.ServiceBus/namespaces/', variables('serviceBusName'))]"
-                    ],
-                    "properties": {
-                        "ai:InstrumentationKey" : "",
-                        "api:Gateway" : "[variables('gatewayApiUrl')]",
-                        "api:Settings" : "[variables('settingsApiUrl')]",
-                        "api:BackOfficeClient" : "[variables('backofficeClientApiUrl')]",
-                        "cache:list" : "60",
-                        "cache:tooltip" : "60",
-                        "cache:help" : "60",
-                        "cache:signingTokens" : "86400",
-                        "cache:user" : "60",
-                        "cache:languages" : "0",
-                        "environment": "[parameters('environment')]",
-                        "ida:Tenant" : "[parameters('idaTenant')]",
-                        "ida:Audience" : "[parameters('idaAudience')]",
-                        "ida:AADInstance" : "https://login.microsoftonline.com/{0}",
-                        "Microsoft.Redis.ConnectionString" : "[concat(variables('redisCacheUrl'), ',password=', listKeys(resourceId('Microsoft.Cache/Redis', variables('redisCacheName')), providers('Microsoft.Cache', 'redis').apiVersions[0]).primaryKey, ',ssl=True,abortConnect=False')]",
-                        "Microsoft.Storage.ConnectionString" : "[concat('DefaultEndPointsProtocol=https;AccountName=', parameters('storageName'), ';AccountKey=', listKeys(resourceId(variables('storageResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
-                        "Microsoft.ServiceBus.ConnectionString" : "[concat(variables('serviceBusEndpoint'), ';SharedAccessKeyName=', variables('serviceBusRuleName'), ';SharedAccessKey=', listKeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', variables('serviceBusRuleName')), providers('Microsoft.ServiceBus', 'namespaces').apiVersions[0]).primaryKey)]",
-                        "search:name" : "[parameters('searchName')]",
-                        "search:key" : "[parameters('searchKey')]",
-                        "token:Tenant" : "www.seamless.no",
-                        "token:Audience" : "www.portwin.no",
-                        "token:SigningKey" : "[parameters('tokenSigningKey')]",
-                        "token:Lifetime" : "5"
-                    }
-                },
-                {
-                    "name": "connectionstrings",
-                    "type": "config",
-                    "apiVersion": "2015-08-01",
-                    "dependsOn": [
-                        "[concat('Microsoft.Web/sites/', variables('settingsApiName'))]"
-                    ],
-                    "tags": {
-                        "displayName": "connectionstrings"
-                    },
-                    "properties": {
-                        "Hangfire": {
-                        "value": "[concat('Server=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName ,';Database=Hangfire;User ID=', parameters('sqlAdminLoginName'), '@', variables('sqlServerName'), ';Password=' , parameters('sqlAdminPassword'), ';Trusted_Connection=False;Encrypt=True;MultipleActiveResultSets=True;Connection Timeout=30')]",
-                        "type": "SQLAzure"
-                        },
-                        "Settings": {
-                        "value": "[concat('Server=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName ,';Database=Settings;User ID=', parameters('sqlAdminLoginName'), '@', variables('sqlServerName'), ';Password=' , parameters('sqlAdminPassword'), ';Trusted_Connection=False;Encrypt=True;MultipleActiveResultSets=True;Connection Timeout=30')]",
-                        "type": "SQLAzure"
-                        }
-                    }
-                }
-            ],            
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            ]
-        },
-        { //Frontend
-            "comments": "Frontend webapp",
-            "type": "Microsoft.Web/sites",
-            "kind": "app",
-            "name": "[variables('frontendName')]",
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "displayName": "[variables('frontendName')]"
-            },
-            "properties": {
-                "name": "[variables('frontendName')]",
-                "hostNames": [
-                    "[variables('frontendApiUrl')]"
-                ],
-                "enabledHostNames": [
-                    "[variables('frontendApiUrl')]",
-                    "[variables('frontendApiScmUrl')]"
-                ],
-                "hostNameSslStates": [
-                    {
-                        "name": "[variables('frontendApiUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    },
-                    {
-                        "name": "[variables('frontendApiScmUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            ],
-            "resources": [
-                {
-                    "apiVersion": "2015-08-01",
-                    "name": "appsettings",
-                    "type": "slotconfignames",
-                    "location": "[resourceGroup().location]",
-                    "tags": { "displayname": "appsettings" },
-                    "dependsOn": [
-                        "[concat('Microsoft.Web/sites/', variables('frontendName'))]"
-                    ],
-                    "properties": {
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('applicationInsightsKey')]"
-                    }
-                }                
-            ]
-        },
-        { //Backoffice
-            "comments": "BackofficeApi",
-            "type": "Microsoft.Web/sites",
-            "kind": "api",
-            "name": "[variables('backofficeApiName')]",
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "displayName": "[variables('backofficeApiName')]"
-            },
-            "properties": {
-                "name": "[variables('backofficeApiName')]",
-                "hostNames": [
-                    "[variables('backofficeApiUrl')]"
-                ],
-                "enabledHostNames": [
-                    "[variables('backofficeApiUrl')]",
-                    "[variables('backofficeApiScmUrl')]"
-                ],
-                "hostNameSslStates": [
-                    {
-                        "name": "[variables('backofficeApiUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    },
-                    {
-                        "name": "[variables('backofficeApiScmUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            ]
-        },
-        { //Gateway
-            "comments": "GatewayApi",
-            "type": "Microsoft.Web/sites",
-            "kind": "app",
-            "name": "[variables('gatewayApiName')]",
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "displayName": "[variables('gatewayApiName')]"
-           },
-            "properties": {
-                "name": "[variables('gatewayApiName')]",
-                "hostNames": [
-                    "[variables('gatewayApiUrl')]"
-                ],
-                "enabledHostNames": [
-                    "[variables('gatewayApiUrl')]",
-                    "[variables('gatewayApiScmUrl')]"
-                ],
-                "hostNameSslStates": [
-                    {
-                        "name": "[variables('gatewayApiUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    },
-                    {
-                        "name": "[variables('gatewayApiScmUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            },
-            "resources": [
-                {
-                    "apiVersion": "2015-08-01",
-                    "name": "appsettings",
-                    "type": "slotconfignames",
-                    "location": "[resourceGroup().location]",
-                    "tags": { "displayname": "appsettings" },
-                    "dependsOn": [
-                        "[concat('Microsoft.Web/sites/', variables('backofficeApiName'))]"
-                    ],
-                    "properties": {
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('applicationInsightsKey')]",
-                        "ai:InstrumentationKey" : "[parameters('applicationInsightsKey')]",
-                        "api:Gateway" : "[variables('gatewayApiUrl')]",
-                        "api:Settings" : "[variables('settingsApiUrl')]",
-                        "api:BackOffice": "[variables('backofficeApiUrl')]",
-                        "api:BackOfficeClient" : "[variables('backofficeClientApiUrl')]",
-                        "cache:list" : "60",
-                        "cache:tooltip" : "60",
-                        "cache:help" : "60",
-                        "cache:signingTokens" : "86400",
-                        "cache:user" : "60",
-                        "cache:languages" : "0",
-                        "environment": "[parameters('environment')]",
-                        "ida:Tenant" : "[parameters('idaTenant')]",
-                        "ida:Audience" : "[parameters('idaAudience')]",
-                        "ida:AADInstance" : "https://login.microsoftonline.com/{0}",
-                        "Microsoft.Redis.ConnectionString" : "[concat(variables('redisCacheUrl'), ',password=', listKeys(resourceId('Microsoft.Cache/Redis', variables('redisCacheName')), providers('Microsoft.Cache', 'redis').apiVersions[0]).primaryKey, ',ssl=True,abortConnect=False')]",
-                        "Microsoft.Storage.ConnectionString" : "[concat('DefaultEndPointsProtocol=https;AccountName=', parameters('storageName'), ';AccountKey=', listKeys(resourceId(variables('storageResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
-                        "Microsoft.ServiceBus.ConnectionString" : "[concat(variables('serviceBusEndpoint'), ';SharedAccessKeyName=', variables('serviceBusRuleName'), ';SharedAccessKey=', listKeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', variables('serviceBusName'), variables('serviceBusRuleName')), providers('Microsoft.ServiceBus', 'namespaces').apiVersions[0]).primaryKey)]",
-                        "owin:AppStartup": "Seamless.Portwin.Gateway.Startup",
-                        "owin:AutomaticAppStartup": "true",
-                        "search:ElasticHost" : "[parameters('searchElasticHost')]",
-                        "search:IndexPrefix" : "[parameters('searchIndexPrefix')]",
-                        "token:Tenant" : "www.seamless.no",
-                        "token:Audience" : "www.portwin.no",
-                        "token:SigningKey" : "[parameters('tokenSigningKey')]",
-                        "token:Lifetime" : "5"
-                    }
-                }                
-            ],
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            ]
-        },
-        { //BackofficeClient
-            "comments": "BackofficeClientApi",
-            "type": "Microsoft.Web/sites",
-            "kind": "api",
-            "name": "[variables('backofficeClientApiName')]",
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "displayName": "[variables('backofficeClientApiName')]"
-            },
-            "properties": {
-                "name": "[variables('backofficeClientApiName')]",
-                "hostNames": [
-                    "[variables('backofficeClientApiUrl')]"
-                ],
-                "enabledHostNames": [
-                    "[variables('backofficeClientApiUrl')]",
-                    "[variables('backofficeClientApiScmUrl')]"
-                ],
-                "hostNameSslStates": [
-                    {
-                        "name": "[variables('backofficeClientApiUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    },
-                    {
-                        "name": "[variables('backofficeClientApiScmUrl')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            },
-            "resources": [
-                {
-                    "apiVersion": "2015-08-01",
-                    "name": "appsettings",
-                    "type": "slotconfignames",
-                    "location": "[resourceGroup().location]",
-                    "tags": { "displayname": "appsettings" },
-                    "dependsOn": [
-                        "[concat('Microsoft.Web/sites/', variables('backofficeClientApiName'))]"
-                    ],
-                    "properties": {
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('applicationInsightsKey')]",
-                        "ai:InstrumentationKey" : "[parameters('applicationInsightsKey')]",
-                        "api:Gateway" : "[variables('gatewayApiUrl')]",
-                        "api:Settings" : "[variables('settingsApiUrl')]",
-                        "api:BackOffice": "[variables('backofficeApiUrl')]",
-                        "api:BackOfficeClient" : "[variables('backofficeClientApiUrl')]",
-                        "cache:list" : "60",
-                        "cache:tooltip" : "60",
-                        "cache:help" : "60",
-                        "cache:signingTokens" : "86400",
-                        "cache:user" : "60",
-                        "cache:languages" : "0",
-                        "environment": "[parameters('environment')]",
-                        "ida:Tenant" : "[parameters('idaTenant')]",
-                        "ida:Audience" : "[parameters('idaAudience')]",
-                        "Microsoft.Redis.ConnectionString" : "[concat(variables('redisCacheUrl'), ',password=', listKeys(resourceId('Microsoft.Cache/Redis', variables('redisCacheName')), providers('Microsoft.Cache', 'redis').apiVersions[0]).primaryKey, ',ssl=True,abortConnect=False')]",
-                        "Microsoft.Storage.ConnectionString" : "[concat('DefaultEndPointsProtocol=https;AccountName=', parameters('storageName'), ';AccountKey=', listKeys(resourceId(variables('storageResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
-                        "Microsoft.ServiceBus.ConnectionString" : "[concat(variables('serviceBusEndpoint'), ';SharedAccessKeyName=', variables('serviceBusRuleName'), ';SharedAccessKey=', listKeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', variables('serviceBusName'), variables('serviceBusRuleName')), providers('Microsoft.ServiceBus', 'namespaces').apiVersions[0]).primaryKey)]",
-                        "search:ElasticHost" : "[parameters('searchElasticHost')]",
-                        "search:IndexPrefix" : "[parameters('searchIndexPrefix')]",
-                        "search:username" : "[parameters('searchUsername')]",
-                        "search:password" : "[parameters('searchPassword')]",
-                        "token:Tenant" : "www.seamless.no",
-                        "token:Audience" : "www.portwin.no",
-                        "token:SigningKey" : "[parameters('tokenSigningKey')]",
-                        "token:Lifetime" : "5"
-                    }
-                }                
-            ],            
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServiceplanName'))]"
-            ]
         }
-    ]
+    ],
+    "outputs": {
+        "RedisCacheUrl": { "type": "string", "value": "[concat(variables('redisCacheName'), '.redis.cache.windows.net:6380')]" },
+        "ServicebusEndPoint": { "type": "string", "value": "[concat('EndPoint=sb://', variables('serviceBusName'), '.servicebus.windows.net')]" }
+    }
 }
