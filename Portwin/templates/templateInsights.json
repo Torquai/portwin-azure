@@ -3,7 +3,6 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "environment": { "type": "string", "defaultValue": null }
-
     },
     "variables": {
         "frontendInsightsName": "[concat('portwin-', parameters('environment'), '-insights-frontend')]",

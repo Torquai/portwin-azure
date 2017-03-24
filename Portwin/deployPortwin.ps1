@@ -1,17 +1,38 @@
 $subscriptionId = "66c96f4e-ae9e-4ffe-a06c-0b9dc1daaad4"
-$resourceGroupName = "templatetest"
+
+#Location in Azure to place resources
 $resourceGroupLocation = "North Europe"
 
-$resourceGroupPrefix = "devtest"
-$environment = "devtest"
+#Resourcegroup prefix to generate new resourcegroups
+$resourceGroupPrefix = "thomas-devtest"
 
-$baseParameterUrl = "https://github.com/Torquai/portwin-azure/blob/master/Portwin/parameters/"
+#Parameters to use as base for environment
+#Valid names: dev
+$baseEnvironment = "dev"
 
-$baseTemplateUrl = "https://github.com/Torquai/portwin-azure/blob/master/Portwin/templates/"
-$templateInsightsFile = $baseTemplateUrl + "templateInsights.json"
-$templateStorageFile = $baseTemplateUrl + "templateStorage.json"
-$templateServiceplanFile = $baseTemplateUrl + "templateServiceplan.json"
-$templateFrontendFile = $baseTemplateUrl + "templateFrontend.json"
+$parameters = @{}
+$parameters.Add("environment", $baseEnvironment);
+
+#Url for parameters
+$baseParameterUrl = "https://github.com/Torquai/portwin-azure/raw/master/Portwin/parameters/"
+
+#Url for templates
+$baseTemplateUrl = "https://github.com/Torquai/portwin-azure/raw/master/Portwin/templates/"
+
+$resourceGroupAuxName = $resourceGroupPrefix + "-aux"
+$resourceGroupInsightsName = $resourceGroupPrefix + "-insights"
+$resourceGroupStorageName = $resourceGroupPrefix + "-storage"
+$resourceGroupWebName = $resourceGroupPrefix + "-web"
+
+$parameterEnvironmentUrl = $baseParameterUrl + $baseEnvironment + ".json"
+$parameterInsightsUrl = $baseParameterUrl + $baseEnvironment + ".insights.json"
+$parameterStorageUrl = $baseParameterUrl + $baseEnvironment + ".storage.json"
+$parameterServiceplanUrl = $baseParameterUrl + $baseEnvironment + ".serviceplan.json"
+
+$templateInsightsUrl = $baseTemplateUrl + "templateInsights.json"
+$templateStorageUrl = $baseTemplateUrl + "templateStorage.json"
+$templateServiceplanUrl = $baseTemplateUrl + "templateServiceplan.json"
+$templateFrontendUrl = $baseTemplateUrl + "templateFrontend.json"
 
 # sign in
 Write-Host "Logging in...";
@@ -21,25 +42,8 @@ Login-AzureRmAccount;
 Write-Host "Selecting subscription '$subscriptionId'";
 Select-AzureRmSubscription -SubscriptionID $subscriptionId;
 
-#Create or check for existing resource group
-$resourceGroup = Get-AzureRmResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
-if(!$resourceGroup)
-{
-    Write-Host "Creating resource group '$resourceGroupName' in location '$resourceGroupLocation'";
-    New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
-}
-else{
-    Write-Host "Using existing resource group '$resourceGroupName'";
-}
-
 # Start the deployment
-Write-Host "Deploying application insights...";
-New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $InsightsTemplate -TemplateParameterFile $InsightsParameters -Verbose;
+Write-Host "Deploying application insights to resourcegroup '$resourceGroupInsightsName'...";
+New-AzureRmResourceGroup -Name $resourceGroupInsightsName -Location $resourceGroupLocation -Force -ErrorAction SilentlyContinue
+New-AzureRmResourceGroupDeployment -Mode Incremental -ResourceGroupName $resourceGroupInsightsName -TemplateUri $templateInsightsUrl -TemplateParameterUri $parameterInsightsUrl -TemplateParameterObject $parameters -Verbose
 Write-Host "Finished deployment of application insights"
-
-Write-Host "Deploying storage"
-
-Write-Host "Finished deployment of storage"
-
-#New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $StorageTemplate -TemplateParameterFile $StorageParameters -DeploymentDebugLogLevel All;
-
