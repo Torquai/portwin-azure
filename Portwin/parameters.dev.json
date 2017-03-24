@@ -1,0 +1,25 @@
+ {
+   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+   "contentVersion": "1.0.0.0",
+   "parameters": {
+        //Environment
+        "environment": { "value": "devtest" },
+
+        //Storage template
+        "storageSkuName": {"value":"Standard_LRS"},
+        "storageSkuTier": {"value": "Standard"},
+        "sqlServerName": {  "value": "testSqlServer" },
+        "sqlAdminLoginName": { "value": "sqladmin" },
+        "sqlAdminPassword": { "value": "a!r(Fc#&blah" },
+
+        //Asp template
+        "searchElasticHost": { "value": "http://portwin-elastic.cloudapp.net:9200/" },
+        "searchIndexPrefix": { "value": "testdev" },
+        "searchName": { "value": "portwin-dev" },
+        "searchUsername": {"value": "elasticuser" },
+        "searchPassword": { "value": "Gulrot398¤" },
+        "searchKey": { "value": "" },
+        "idaTenant": { "value": "portwindev.onmicrosoft.com" },
+        "idaAudience": { "value": "6d3fea0b-a8b3-48f7-9d7a-8652b2021eb5" }
+   }
+ }

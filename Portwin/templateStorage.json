@@ -1,0 +1,117 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": { "type": "string", "defaultValue": null },
+
+        "sqlAdminLoginName": { "type": "string", "defaultValue": null },
+        "sqlAdminPassword": { "type": "securestring", "defaultValue": null },
+
+        "storageSkuTier": { "type": "string", "defaultValue": "Standard", "allowedValues": [ "Standard", "Premium" ] },
+        "storageSkuName": { "type": "string", "defaultValue": "Standard_LRS", "allowedValues": [ "Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Standard_ZRS", "Premium_LRS" ] }
+    },
+    "variables": {
+        "storageName": "[concat('portwin', parameters('environment'), 'storage')]",
+        
+        "sqlServerName": "[concat('portwin-', parameters('environment'), '-sqlserver')]"
+    },
+    "resources": [
+        { //SqlServer
+            "comments": "SqlServer",
+            "type": "Microsoft.Sql/servers",
+            "kind": "v12.0",
+            "name": "[variables('sqlServerName')]",
+            "apiVersion": "2014-04-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "administratorLogin": "[parameters('sqlAdminLoginName')]",
+                "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
+                "version": "12.0"
+            },
+            "tags": {
+                "displayName": "[variables('sqlServerName')]",
+                "environment": "[parameters('environment')]"
+            },
+            "dependsOn": [],
+            "resources": [
+                { //Allow all Azure Ips
+                    "name": "AllowAllWindowsAzureIps",
+                    "type": "firewallrules",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+                    ],
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "0.0.0.0"
+                    }
+                },
+                { //Settings database
+                    "name": "Settings",
+                    "type": "databases",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[variables('sqlServerName')]"
+                    ],
+                    "tags": {
+                        "displayName": "Settings",
+                        "environment": "[parameters('environment')]"
+                    },
+                    "properties": {
+                        "collation": "SQL_Latin1_General_Cp1_CI_AS",
+                        "edition": "Basic",
+                        "maxSizeBytes": "1073741824"
+                    }
+                },
+                { //Hangfire database
+                    "name": "Hangfire",
+                    "type": "databases",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[variables('sqlServerName')]"
+                    ],
+                    "tags": {
+                        "displayName": "Hangfire",
+                        "environment": "[parameters('environment')]"
+                    },
+                    "properties": {
+                        "collation": "SQL_Latin1_General_Cp1_CI_AS",
+                        "edition": "Standard",
+                        "maxSizeBytes": "1073741824"
+                    }
+                }
+            ]
+        },
+        { //Storageaccount
+            "comments": "Storage",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "[parameters('storageSkuName')]",
+                "tier": "[parameters('storageSkuTier')]"
+            },
+            "kind": "Storage",
+            "name": "[toLower(variables('storageName'))]",
+            "apiVersion": "2016-01-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('storageName')]",
+                "environment": "[parameters('environment')]"
+            },
+            "properties": {},
+            "dependsOn": []
+        }   
+    ],
+    "outputs": {
+        "SettingsDatabaseConnectionString": {
+            "type": "string",
+            "value": "[concat('Server=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName ,';Database=Settings;User ID=', parameters('sqlAdminLoginName'), '@', variables('sqlServerName'), ';Password=' , parameters('sqlAdminPassword'), ';Trusted_Connection=False;Encrypt=True;MultipleActiveResultSets=True;Connection Timeout=30')]"
+        },
+        "HangfireDatabaseConnectionString": {
+            "type": "string",
+            "value": "[concat('Server=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName ,';Database=Hangfire;User ID=', parameters('sqlAdminLoginName'), '@', variables('sqlServerName'), ';Password=' , parameters('sqlAdminPassword'), ';Trusted_Connection=False;Encrypt=True;MultipleActiveResultSets=True;Connection Timeout=30')]"
+        }
+    }
+}

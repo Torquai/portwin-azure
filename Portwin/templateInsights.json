@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": { "type": "string", "defaultValue": null }
+
+    },
+    "variables": {
+        "frontendInsightsName": "[concat('portwin-', parameters('environment'), '-insights-frontend')]",
+        "settingsInsightsName": "[concat('portwin-', parameters('environment'), '-insights-settings')]",
+        "gatewayInsightsName": "[concat('portwin-', parameters('environment'), '-insights-gateway')]",
+        "backofficeClientInsightsName": "[concat('portwin-', parameters('environment'), '-insights-backofficeClient')]",
+        "backofficeInsightsName": "[concat('portwin-', parameters('environment'), '-insights-backoffice')]"
+    },    
+    "resources": [
+        { //Frontend
+            "comments": "Frontend Insights",
+            "type": "microsoft.insights/components",
+            "kind": "other",
+            "name": "[variables('frontendInsightsName')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
+            "properties": {
+                "ApplicationId": "[variables('frontendInsightsName')]"
+            },
+            "dependsOn": []
+        },
+        { // Backoffice
+            "comments": "Backoffice Insights",
+            "type": "microsoft.insights/components",
+            "kind": "web",
+            "name": "[variables('backofficeInsightsName')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
+            "properties": {
+                "ApplicationId": "[variables('backofficeInsightsName')]"
+            },
+            "dependsOn": []
+        },
+        { // BackofficeClient
+            "comments": "BackofficeClient Insights",
+            "type": "microsoft.insights/components",
+            "kind": "web",
+            "name": "[variables('backofficeClientInsightsName')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
+            "properties": {
+                "ApplicationId": "[variables('backofficeClientInsightsName')]"
+            },
+            "dependsOn": []
+        },
+        { // Gateway
+            "comments": "Gateway insights",
+            "type": "microsoft.insights/components",
+            "kind": "web",
+            "name": "[variables('gatewayInsightsName')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
+            "properties": {
+                "ApplicationId": "[variables('gatewayInsightsName')]"
+            },
+            "dependsOn": []
+        },
+        { // Settings
+            "comments": "Settingsinsights",
+            "type": "microsoft.insights/components",
+            "kind": "web",
+            "name": "[variables('settingsInsightsName')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
+            "properties": {
+                "ApplicationId": "[variables('settingsInsightsName')]"
+            },
+            "dependsOn": []
+        }
+    ],
+    "outputs": {
+        "FrontendKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('frontendInsightsName'))).InstrumentationKey]" },
+        "SettingsKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('settingsInsightsName'))).InstrumentationKey]" },
+        "GatewayKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('gatewayInsightsName'))).InstrumentationKey]" },
+        "BackofficeKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('backofficeInsightsName'))).InstrumentationKey]" },
+        "BackofficeClientKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('backofficeClientInsightsName'))).InstrumentationKey]" }
+    }
+}
