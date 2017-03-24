@@ -10,9 +10,6 @@ $resourceGroupPrefix = "thomas-devtest"
 #Valid names: dev
 $baseEnvironment = "dev"
 
-$parameters = @{}
-$parameters.Add("environment", $baseEnvironment);
-
 #Url for parameters
 $baseParameterUrl = "https://github.com/Torquai/portwin-azure/raw/master/Portwin/parameters/"
 
@@ -24,7 +21,6 @@ $resourceGroupInsightsName = $resourceGroupPrefix + "-insights"
 $resourceGroupStorageName = $resourceGroupPrefix + "-storage"
 $resourceGroupWebName = $resourceGroupPrefix + "-web"
 
-$parameterEnvironmentUrl = $baseParameterUrl + $baseEnvironment + ".json"
 $parameterInsightsUrl = $baseParameterUrl + $baseEnvironment + ".insights.json"
 $parameterStorageUrl = $baseParameterUrl + $baseEnvironment + ".storage.json"
 $parameterServiceplanUrl = $baseParameterUrl + $baseEnvironment + ".serviceplan.json"
@@ -45,5 +41,20 @@ Select-AzureRmSubscription -SubscriptionID $subscriptionId;
 # Start the deployment
 Write-Host "Deploying application insights to resourcegroup '$resourceGroupInsightsName'...";
 New-AzureRmResourceGroup -Name $resourceGroupInsightsName -Location $resourceGroupLocation -Force -ErrorAction SilentlyContinue
-New-AzureRmResourceGroupDeployment -Mode Incremental -ResourceGroupName $resourceGroupInsightsName -TemplateUri $templateInsightsUrl -TemplateParameterUri $parameterInsightsUrl -TemplateParameterObject $parameters -Verbose
+New-AzureRmResourceGroupDeployment `
+    -Mode Incremental `
+    -ResourceGroupName $resourceGroupInsightsName `
+    -TemplateUri $templateInsightsUrl `
+    -TemplateParameterObject @{ environment=$baseEnvironment } `
+    -Verbose
 Write-Host "Finished deployment of application insights"
+
+Write-Host "Deploying storage to resourcegroup '$resourceGroupStorageName'...";
+New-AzureRmResourceGroup -Name $resourceGroupStorageName -Location $resourceGroupLocation -Force -ErrorAction SilentlyContinue
+New-AzureRmResourceGroupDeployment `
+    -Mode Incremental `
+    -ResourceGroupName $resourceGroupStorageName `
+    -TemplateUri $templateStorageUrl `
+    -TemplateParameterObject @{ environment=$baseEnvironment; parameteruri=$parameterStorageUrl } `
+    -Verbose
+Write-Host "Finished deployment of storage resources"
