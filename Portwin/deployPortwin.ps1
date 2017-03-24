@@ -2,18 +2,16 @@ $subscriptionId = "66c96f4e-ae9e-4ffe-a06c-0b9dc1daaad4"
 $resourceGroupName = "templatetest"
 $resourceGroupLocation = "North Europe"
 
-$baseParameterUrl = ""
-$baseTemplateUrl = ""
+$resourceGroupPrefix = "devtest"
+$environment = "devtest"
 
-$StorageTemplate = ".\templateStorage.json"
-$StorageParameters = ".\parameters.dev.storage.json"
+$baseParameterUrl = "https://github.com/Torquai/portwin-azure/blob/master/Portwin/parameters/"
 
-$InsightsTemplate = ".\templateInsights.json"
-$InsightsParameters = ".\parameters.dev.insights.json"
-
-$TemplateFile = ".\templateServicePlan.json"
-$ParameterFile = ".\parameters.dev.json"
-
+$baseTemplateUrl = "https://github.com/Torquai/portwin-azure/blob/master/Portwin/templates/"
+$templateInsightsFile = $baseTemplateUrl + "templateInsights.json"
+$templateStorageFile = $baseTemplateUrl + "templateStorage.json"
+$templateServiceplanFile = $baseTemplateUrl + "templateServiceplan.json"
+$templateFrontendFile = $baseTemplateUrl + "templateFrontend.json"
 
 # sign in
 Write-Host "Logging in...";
