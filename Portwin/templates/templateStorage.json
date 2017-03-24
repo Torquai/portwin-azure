@@ -105,11 +105,11 @@
         }   
     ],
     "outputs": {
-        "SettingsDatabaseConnectionString": {
+        "settingsDatabaseConnectionString": {
             "type": "string",
             "value": "[concat('Server=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName ,';Database=Settings;User ID=', parameters('sqlAdminLoginName'), '@', variables('sqlServerName'), ';Password=' , parameters('sqlAdminPassword'), ';Trusted_Connection=False;Encrypt=True;MultipleActiveResultSets=True;Connection Timeout=30')]"
         },
-        "HangfireDatabaseConnectionString": {
+        "hangfireDatabaseConnectionString": {
             "type": "string",
             "value": "[concat('Server=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName ,';Database=Hangfire;User ID=', parameters('sqlAdminLoginName'), '@', variables('sqlServerName'), ';Password=' , parameters('sqlAdminPassword'), ';Trusted_Connection=False;Encrypt=True;MultipleActiveResultSets=True;Connection Timeout=30')]"
         }

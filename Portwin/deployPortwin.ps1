@@ -6,21 +6,14 @@ $resourceGroupLocation = "North Europe"
 #Resourcegroup prefix to generate new resourcegroups
 $resourceGroupPrefix = "thomas-devtest"
 
-$parameters = @{
-    "environment" = "dev";
-    "sqlAdminLoginName" = "sqladmin";
-    "sqlAdminPassword" = "a!r(Fc#&blah"
+#Environment to generate
+$paramEnvironment = "devtest";
 
-    "storageSkuName" = "Standard_LRS";
-    "storageSkuTier" = "Standard";
-};
+$paramSqlAdminLoginName = "sqladmin";
+$paramSqlAdminPassword = "a!r(Fc#&blah";
 
-#Url for parameters
-$baseParameterUrl = "https://github.com/Torquai/portwin-azure/raw/master/Portwin/parameters/"
-
-#Url for templates
-$baseTemplateUrl = "https://github.com/Torquai/portwin-azure/raw/master/Portwin/templates/"
-
+$paramStorageSkuName = "Standard_LRS";
+$paramStorageSkuTier = "Standard";
 
 
 # sign in
@@ -33,30 +26,59 @@ Select-AzureRmSubscription -SubscriptionID $subscriptionId;
 
 # Start deployment of application insights
 $resourceGroupInsightsName = $resourceGroupPrefix + "-insights"
-$templateUri = $baseTemplateUrl + "templateInsights.json"
+$insightParameters = @{
+    "environment" = $paramEnvironment
+};
 
 Write-Host "Deploying application insights to resourcegroup '$resourceGroupInsightsName'...";
-#New-AzureRmResourceGroup -Name $resourceGroupInsightsName -Location $resourceGroupLocation -Force -ErrorAction SilentlyContinue
-#New-AzureRmResourceGroupDeployment `
-#    -Mode Incremental `
-#    -ResourceGroupName $resourceGroupInsightsName `
-#    -TemplateUri $templateUri `
-#    -TemplateParameterObject @{ environment=$baseEnvironment; } `
-#    -Verbose;
+New-AzureRmResourceGroup -Name $resourceGroupInsightsName -Location $resourceGroupLocation -Force -ErrorAction SilentlyContinue
+$insightsResult = New-AzureRmResourceGroupDeployment `
+    -Mode Incremental `
+    -ResourceGroupName $resourceGroupInsightsName `
+    -TemplateFile ".\templates\templateInsights.json" `
+    -TemplateParameterObject $insightParameters `
+    -Verbose;
+
+$frontendInsightsKey = $insightsResult.Outputs["frontendKey"].Value;
+$settingsInsightsKey = $insightsResult.Outputs["settingsKey"].Value;
+$gatewayInsightsKey = $insightsResult.Outputs["gatewayKey"].Value;
+$backofficeInsightsKey = $insightsResult.Outputs["backofficeKey"].Value;
+$backofficeClientInsightsKey = $insightsResult.Outputs["backofficeClientKey"].Value;
+
 Write-Host "Finished deployment of application insights"
 
 
 # Start deployment of storage
 $resourceGroupStorageName = $resourceGroupPrefix + "-storage"
-$templateUri = $baseTemplateUrl + "templateStorage.json"
-$storageParameters = @{ "environment" = $parameters.Get_Item("environment") };
+$storageParameters = @{ 
+    "environment" = $paramEnvironment;
+    
+    "sqlAdminLoginName" = $paramSqlAdminLoginName;
+    "sqlAdminPassword" = $paramSqlAdminPassword;
+    
+    "storageSkuTier" = $paramStorageSkuTier;
+    "storageSkuName" = $paramStorageSkuName;
+};
 
 Write-Host "Deploying storage to resourcegroup '$resourceGroupStorageName'...";
 New-AzureRmResourceGroup -Name $resourceGroupStorageName -Location $resourceGroupLocation -Force -ErrorAction SilentlyContinue
-New-AzureRmResourceGroupDeployment `
+$storageResult = New-AzureRmResourceGroupDeployment `
     -Mode Incremental `
     -ResourceGroupName $resourceGroupStorageName `
-    -TemplateUri $templateUri `
+    -TemplateFile ".\templates\templateStorage.json" `
     -TemplateParameterObject $storageParameters `
     -Verbose;
+
+$settingsDatabaseConnectionString = $storageResult.Outputs["settingsDatabaseConnectionString"].Value;
+$hangfireDatabaseConnectionString = $storageResult.Outputs["hangfireDatabaseConnectionString"].Value;
+
 Write-Host "Finished deployment of storage resources"
+
+Write-Host "Outputs:";
+Write-Host "SettingsConnectionString:" $settingsDatabaseConnectionString;
+Write-Host "HangfireConnectionString: " $hangfireDatabaseConnectionString;
+Write-Host "FrontendKey: " $frontendInsightsKey;
+Write-Host "GatewayKey: " $gatewayInsightsKey;
+Write-Host "SettingsKey: " $settingsInsightsKey;
+Write-Host "BackofficeKey: " $backofficeInsightsKey;
+Write-Host "BackofficeClientKey: " $backofficeClientInsightsKey;

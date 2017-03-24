@@ -89,10 +89,10 @@
         }
     ],
     "outputs": {
-        "FrontendKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('frontendInsightsName'))).InstrumentationKey]" },
-        "SettingsKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('settingsInsightsName'))).InstrumentationKey]" },
-        "GatewayKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('gatewayInsightsName'))).InstrumentationKey]" },
-        "BackofficeKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('backofficeInsightsName'))).InstrumentationKey]" },
-        "BackofficeClientKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('backofficeClientInsightsName'))).InstrumentationKey]" }
+        "frontendKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('frontendInsightsName'))).InstrumentationKey]" },
+        "settingsKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('settingsInsightsName'))).InstrumentationKey]" },
+        "gatewayKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('gatewayInsightsName'))).InstrumentationKey]" },
+        "backofficeKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('backofficeInsightsName'))).InstrumentationKey]" },
+        "backofficeClientKey": { "type": "string", "value":"[reference(concat('microsoft.insights/components/', variables('backofficeClientInsightsName'))).InstrumentationKey]" }
     }
 }
