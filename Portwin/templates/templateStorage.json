@@ -3,7 +3,6 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "environment": { "type": "string", "defaultValue": null },
-        "parameteruri": { "type": "string", "defaultValue": null },
 
         "sqlAdminLoginName": { "type": "string", "defaultValue": null },
         "sqlAdminPassword": { "type": "securestring", "defaultValue": null },
@@ -17,18 +16,6 @@
         "sqlServerName": "[concat('portwin-', parameters('environment'), '-sqlserver')]"
     },
     "resources": [
-        {
-            "apiVersion": "2015-01-01",
-            "name": "parameters",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "parametersLink": {
-                    "contentVersion": "1.0.0.0",
-                    "uri": "[parameters('parameteruri')]"
-                }
-            }
-        },
         { //SqlServer
             "comments": "SqlServer",
             "type": "Microsoft.Sql/servers",
