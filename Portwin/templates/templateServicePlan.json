@@ -7,7 +7,7 @@
             "type": "string"
         },
 
-        "redisSku": {
+        "redisCacheSku": {
             "type": "string",
             "allowedValues": [ "Basic", "Standard", "Premium" ],
             "defaultValue": "Basic"
@@ -59,7 +59,7 @@
             },
             "properties": {
                 "sku": {
-                    "name": "[parameters('redisSku')]",
+                    "name": "[parameters('redisCacheSku')]",
                     "family": "[parameters('redisCacheSkuFamily')]",
                     "capacity": "[parameters('redisCacheSkuCapacity')]"
                 },
@@ -140,7 +140,7 @@
         }
     ],
     "outputs": {
-        "RedisCacheUrl": { "type": "string", "value": "[concat(variables('redisCacheName'), '.redis.cache.windows.net:6380')]" },
-        "ServicebusEndPoint": { "type": "string", "value": "[concat('EndPoint=sb://', variables('serviceBusName'), '.servicebus.windows.net')]" }
+        "redisCacheUrl": { "type": "string", "value": "[concat(variables('redisCacheName'), '.redis.cache.windows.net:6380')]" },
+        "servicebusEndPoint": { "type": "string", "value": "[concat('EndPoint=sb://', variables('serviceBusName'), '.servicebus.windows.net')]" }
     }
 }

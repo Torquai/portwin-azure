@@ -15,6 +15,13 @@ $paramSqlAdminPassword = "a!r(Fc#&blah";
 $paramStorageSkuName = "Standard_LRS";
 $paramStorageSkuTier = "Standard";
 
+$paramRedisCacheSku = "Basic";
+$paramRedisCacheSkuFamily = "C";
+$paramRedisCacheSkuCapacity = 1;
+
+$paramServicePlanTier = "Standard";
+$paramServicePlanFamily = "S";
+$paramServicePlanSize = "1"
 
 # sign in
 Write-Host "Logging in...";
@@ -24,7 +31,9 @@ Login-AzureRmAccount;
 Write-Host "Selecting subscription '$subscriptionId'";
 Select-AzureRmSubscription -SubscriptionID $subscriptionId;
 
-# Start deployment of application insights
+
+
+#---------------------------- Start deployment of application insights
 $resourceGroupInsightsName = $resourceGroupPrefix + "-insights"
 $insightParameters = @{
     "environment" = $paramEnvironment
@@ -48,7 +57,8 @@ $backofficeClientInsightsKey = $insightsResult.Outputs["backofficeClientKey"].Va
 Write-Host "Finished deployment of application insights"
 
 
-# Start deployment of storage
+
+#---------------------------- Start deployment of storage
 $resourceGroupStorageName = $resourceGroupPrefix + "-storage"
 $storageParameters = @{ 
     "environment" = $paramEnvironment;
@@ -73,6 +83,36 @@ $settingsDatabaseConnectionString = $storageResult.Outputs["settingsDatabaseConn
 $hangfireDatabaseConnectionString = $storageResult.Outputs["hangfireDatabaseConnectionString"].Value;
 
 Write-Host "Finished deployment of storage resources"
+
+
+
+#---------------------------- Start deployment of Asp
+$aspResourceGroupName = $resourceGroupPrefix + "-web"
+$aspParamaters = @{
+    "environment" = $paramEnvironment;
+
+    "redisCacheSku" = $paramRedisCacheSku;
+    "redisCacheSkuFamily" = $paramRedisCacheSkuFamily;
+    "redisCacheSkuCapacity" = $paramRedisCacheSkuCapacity;
+
+    "ServicePlanTier" = $paramServicePlanTier;
+    "ServicePlanFamily" = $paramServicePlanFamily;
+    "ServicePlanSize" = $paramServicePlanSize;
+}
+
+Write-Host "Deploying Asp to resourceGroup '$aspResourceGroupName'...";
+New-AzureRmResourceGroup -Name $aspResourceGroupName -Location $resourceGroupLocation -Force -ErrorAction SilentlyContinue
+$aspResult = New-AzureRmResourceGroupDeployment `
+    -Mode Incremental `
+    -ResourceGroupName $aspResourceGroupName `
+    -TemplateFile ".\templates\templateServiceplan.json" `
+    -TemplateParameterObject $aspParamaters `
+    -Verbose
+
+$aspRedisCacheUrl = $aspResult.Outputs["redisCacheUrl"].Value;
+$aspServicebusEndPoint = $aspResult.Outputs["servicebusEndPoint"].Value;
+
+Write-Host "Finished deployment of Asp"
 
 Write-Host "Outputs:";
 Write-Host "SettingsConnectionString:" $settingsDatabaseConnectionString;
